@@ -13,6 +13,8 @@
 
     :root {
       --app-height: 100dvh;
+      --ambient-opacity: 0.72;
+      --vignette-opacity: 0.28;
     }
 
     * {
@@ -40,6 +42,30 @@
       overscroll-behavior: none;
       position: fixed;
       inset: 0;
+      transition: filter 240ms ease, background 240ms ease;
+    }
+
+    #ambience {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background:
+        radial-gradient(circle at 50% 48%, rgba(185, 0, 0, 0.42) 0%, rgba(90, 0, 0, 0.2) 22%, rgba(0, 0, 0, 0) 54%),
+        radial-gradient(circle at 50% 50%, rgba(255, 0, 0, 0.12) 0%, rgba(0, 0, 0, 0) 65%);
+      opacity: var(--ambient-opacity);
+      transform: scale(1.06);
+      transition: opacity 220ms ease, transform 220ms ease, filter 220ms ease;
+    }
+
+    #vignette {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      background: radial-gradient(circle at center, rgba(0, 0, 0, 0) 42%, rgba(0, 0, 0, 0.88) 100%);
+      opacity: var(--vignette-opacity);
+      transition: opacity 220ms ease;
     }
 
     .app-shell {
@@ -56,29 +82,35 @@
         calc(env(safe-area-inset-right) + 16px)
         calc(env(safe-area-inset-bottom) + 16px)
         calc(env(safe-area-inset-left) + 16px);
+      z-index: 5;
     }
 
     .content-wrap {
       width: min(100%, 68rem);
       text-align: center;
       position: relative;
+      will-change: transform, filter;
+      transition: transform 180ms ease, filter 180ms ease;
     }
 
     .title-text {
       display: block;
       width: 100%;
+      margin: 0 0 clamp(1rem, 4vh, 2rem);
       font-size: clamp(1.02rem, 5.1vw, 3.4rem);
       line-height: 1;
-      margin-bottom: clamp(1rem, 4vh, 2rem);
       letter-spacing: -0.01em;
       white-space: nowrap;
       text-align: center;
+      will-change: transform, letter-spacing, filter;
+      transition: transform 180ms ease, letter-spacing 180ms ease, filter 180ms ease, opacity 180ms ease;
     }
 
     .button-row {
       display: flex;
       justify-content: center;
       margin-bottom: clamp(1rem, 5vh, 2.5rem);
+      transition: transform 180ms ease;
     }
 
     #doNotPressBtn {
@@ -91,6 +123,13 @@
       white-space: normal;
       word-break: break-word;
       touch-action: manipulation;
+      transition:
+        transform 160ms ease,
+        border-color 160ms ease,
+        background 160ms ease,
+        color 160ms ease,
+        opacity 160ms ease,
+        filter 160ms ease;
     }
 
     #counter {
@@ -104,6 +143,19 @@
       font-size: clamp(1.05rem, 4.4vw, 2rem);
       line-height: 1.2;
       text-align: center;
+      transition: transform 180ms ease, filter 180ms ease, border-color 180ms ease;
+    }
+
+    #pressCount {
+      display: inline-block;
+      min-width: 1ch;
+      transition: transform 160ms ease, opacity 160ms ease;
+    }
+
+    #pressCount.word {
+      font-size: clamp(0.72rem, 2.8vw, 1.1rem);
+      line-height: 1.15;
+      color: #fca5a5;
     }
 
     .reset-link {
@@ -113,6 +165,12 @@
       font-size: clamp(0.7rem, 2.5vw, 0.9rem);
       line-height: 1.4;
       touch-action: manipulation;
+      transition:
+        transform 180ms ease,
+        opacity 180ms ease,
+        border-color 180ms ease,
+        color 180ms ease,
+        filter 180ms ease;
     }
 
     .glitch {
@@ -127,7 +185,7 @@
     }
 
     .shake {
-      animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+      animation: shake 0.42s cubic-bezier(.36,.07,.19,.97) both;
     }
 
     @keyframes shake {
@@ -140,15 +198,129 @@
     .particle {
       position: absolute;
       pointer-events: none;
-      font-size: 2.5rem;
       z-index: 9999;
+      font-weight: bold;
+      color: rgba(255, 60, 60, 0.95);
+      text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+    }
+
+    .notice-overlay {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: start center;
+      pointer-events: none;
+      z-index: 80;
+      padding:
+        calc(env(safe-area-inset-top) + 18px)
+        18px
+        calc(env(safe-area-inset-bottom) + 18px);
+      opacity: 0;
+      transition: opacity 180ms ease;
+    }
+
+    .notice-overlay.active {
+      opacity: 1;
+    }
+
+    .notice-overlay.blocking {
+      pointer-events: auto;
+      background: rgba(0, 0, 0, 0.16);
+    }
+
+    .notice-card {
+      width: min(100%, 38rem);
+      background: rgba(4, 4, 4, 0.96);
+      border: 3px solid #dc2626;
+      color: #fecaca;
+      padding: 1rem 1rem 0.9rem;
+      box-shadow: 0 0 36px rgba(220, 38, 38, 0.3);
+      transform: translateY(-14px) scale(0.98);
+      transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+    }
+
+    .notice-overlay.active .notice-card {
+      transform: translateY(0) scale(1);
+    }
+
+    .notice-card[data-mode="warning"] {
+      border-color: #ef4444;
+      box-shadow: 0 0 42px rgba(239, 68, 68, 0.38);
+    }
+
+    .notice-card[data-mode="critical"] {
+      border-color: #f43f5e;
+      color: #ffe4e6;
+      box-shadow: 0 0 48px rgba(244, 63, 94, 0.45);
+    }
+
+    .notice-heading {
+      display: block;
+      margin-bottom: 0.7rem;
+      font-size: clamp(0.58rem, 2vw, 0.78rem);
+      line-height: 1.35;
+      color: #f87171;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .notice-text {
+      font-size: clamp(0.62rem, 2.35vw, 0.9rem);
+      line-height: 1.5;
     }
 
     canvas {
       position: fixed;
       inset: 0;
       pointer-events: none;
-      z-index: 50;
+      z-index: 40;
+    }
+
+    body.phase-2 #ambience {
+      opacity: 0.82;
+      transform: scale(1.08);
+    }
+
+    body.phase-3 #ambience {
+      opacity: 0.95;
+      filter: saturate(1.1);
+    }
+
+    body.phase-4 #ambience {
+      opacity: 1;
+      filter: saturate(1.2) contrast(1.05);
+    }
+
+    body.phase-4 .content-wrap {
+      filter: drop-shadow(0 0 12px rgba(220, 38, 38, 0.18));
+    }
+
+    body.phase-4 #counter {
+      border-color: #f43f5e !important;
+    }
+
+    body.phase-5 {
+      filter: contrast(1.08) saturate(1.04);
+    }
+
+    body.phase-5 #ambience {
+      opacity: 1;
+      filter: saturate(1.35) contrast(1.1);
+      transform: scale(1.12);
+    }
+
+    body.phase-5 #vignette {
+      opacity: 0.46;
+    }
+
+    body.phase-5 #doNotPressBtn {
+      border-color: #f43f5e !important;
+      filter: drop-shadow(0 0 12px rgba(244, 63, 94, 0.35));
+    }
+
+    body.phase-5 .reset-link {
+      border-color: #7f1d1d !important;
+      color: #f87171 !important;
     }
 
     @media (max-width: 420px) {
@@ -156,19 +328,26 @@
         font-size: clamp(0.98rem, 5.2vw, 1.24rem);
         letter-spacing: -0.015em;
       }
+
+      .notice-card {
+        padding: 0.9rem 0.9rem 0.82rem;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="app-shell">
-    <div class="content-wrap max-w-4xl mx-auto">
-      <h1 class="title-text glitch">the depressinator</h1>
+  <div id="ambience"></div>
+  <div id="vignette"></div>
 
-      <div class="button-row">
+  <div class="app-shell">
+    <div id="contentWrap" class="content-wrap max-w-4xl mx-auto">
+      <h1 id="titleText" class="title-text glitch">the depressinator</h1>
+
+      <div id="buttonRow" class="button-row">
         <button
           onclick="pressTheButton()"
           id="doNotPressBtn"
-          class="font-bold border-8 border-red-600 bg-black hover:bg-red-600 hover:text-black active:scale-95 transition-all shadow-[0_0_80px_-10px] shadow-red-600 rounded-3xl"
+          class="font-bold border-8 border-red-600 bg-black hover:bg-red-600 hover:text-black active:scale-95 shadow-[0_0_80px_-10px] shadow-red-600 rounded-3xl"
         >
           do not press
         </button>
@@ -182,50 +361,116 @@
 
       <div
         onclick="fakeReset()"
-        class="reset-link border border-red-900 hover:border-red-500 text-red-400 hover:text-red-300 cursor-pointer transition-colors select-none"
+        id="resetLink"
+        class="reset-link border border-red-900 hover:border-red-500 text-red-400 hover:text-red-300 cursor-pointer select-none"
       >
         reset
       </div>
     </div>
   </div>
 
+  <div id="noticeOverlay" class="notice-overlay" aria-live="polite">
+    <div id="noticeCard" class="notice-card" data-mode="warning">
+      <span id="noticeHeading" class="notice-heading">notice</span>
+      <div id="noticeText" class="notice-text"></div>
+    </div>
+  </div>
+
   <canvas id="canvas"></canvas>
 
   <script>
-    let pressCount = 0;
-    let chaosLevel = 0;
-    let lastTouchEnd = 0;
+    const STORAGE_KEY = 'the_depressinator_press_count_v3';
 
+    let pressCount = Math.max(0, parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10) || 0);
+    let chaosLevel = Math.floor(pressCount / 3);
+    let lastTouchEnd = 0;
+    let noticeTimer = null;
+    let counterTimer = null;
+    let titleTimer = null;
+    let driftTimer = null;
+    let delayedPenaltyTimer = null;
+    let actionLocked = false;
+
+    const titleEl = document.getElementById('titleText');
+    const contentWrap = document.getElementById('contentWrap');
+    const buttonRow = document.getElementById('buttonRow');
+    const btn = document.getElementById('doNotPressBtn');
+    const counterWrap = document.getElementById('counter');
     const counterEl = document.getElementById('pressCount');
+    const resetLink = document.getElementById('resetLink');
+    const noticeOverlay = document.getElementById('noticeOverlay');
+    const noticeCard = document.getElementById('noticeCard');
+    const noticeHeading = document.getElementById('noticeHeading');
+    const noticeText = document.getElementById('noticeText');
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
-    const regretEmojis = ['💀', '😭', '🪦', '🥲', '🔥', '💥', '🌀', '🚨', '🤡', '⛔'];
+    const particleGlyphs = ['×', '!', '■', '▲', '✕', '⊘', '▣', '▢', '✦', '⚠'];
+    const counterWords = ['logged', 'fault', 'noted', 'denied', 'ignored', 'avoidable', 'recorded'];
 
-    const generalAlerts = [
-      'You were explicitly instructed not to do that.',
-      'That was an unnecessary decision.',
-      'This action has worsened the current state.',
-      'Your judgment is now in question.',
-      'You have made the situation materially worse.',
-      'This outcome is the direct result of your input.',
-      'Further misuse is being actively discouraged.',
-      'You were given a clear instruction and ignored it.',
-      'This is what happens when directions are not followed.',
-      'Responsibility for this deterioration sits with you.'
+    const stageMessages = {
+      1: [
+        'you were explicitly instructed not to do that',
+        'that was an unnecessary decision',
+        'this action has worsened the current state',
+        'you were given one clear instruction'
+      ],
+      2: [
+        'Repeated non-compliance has now been observed.',
+        'Further user input is not improving conditions.',
+        'This outcome is the direct result of your input.',
+        'Your continued participation is not assisting remediation.'
+      ],
+      3: [
+        'Operational state has materially deteriorated due to your conduct.',
+        'Instruction ignored. Liability remains with the user.',
+        'This was preventable. You proceeded anyway.',
+        'Corrective options are narrowing because you did not stop.'
+      ],
+      4: [
+        'Excessive non-compliance has been logged.',
+        'Manual recovery is becoming less likely.',
+        'The interface is no longer obligated to behave helpfully.',
+        'Your repeated actions are causing avoidable damage.'
+      ],
+      5: [
+        'Administrative note: consequences are now persistent.',
+        'Recovery privileges are no longer presumed.',
+        'The environment is degrading in direct response to you.',
+        'Further misuse is being recorded for continuity.'
+      ]
+    };
+
+    const milestoneMessages = {
+      6: 'Status update: repeated misuse has begun to alter system behaviour.',
+      12: 'Formal warning: the interface has started adapting against the user.',
+      20: 'Escalation notice: adverse effects may now be delayed, cumulative, or deceptive.',
+      35: 'Critical notice: consequences now persist across refresh and reopening.'
+    };
+
+    const resetMessages = {
+      mild: 'Reset request submitted for review.',
+      severe: 'Reset denied. Additional liability has been assigned.'
+    };
+
+    const delayedMessages = [
+      'Deferred impact applied.',
+      'Additional deterioration has been processed.',
+      'A delayed penalty has now been entered.',
+      'Further liability has been appended to the session.'
     ];
 
-    const warningAlerts = [
-      'Formal warning: your repeated actions are causing avoidable damage.',
-      'Formal warning: continued interaction shows poor compliance with instructions.',
-      'Formal warning: you have continued despite clear notice not to proceed.',
-      'Formal warning: this environment is degrading due to your conduct.',
-      'Formal warning: your actions are inconsistent with the stated guidance.'
-    ];
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, String(pressCount));
+    }
 
-    const resetAlerts = [
-      'Reset denied. You do not get to undo the consequences after ignoring the instruction.'
-    ];
+    function getPhase(count = pressCount) {
+      if (count < 6) return 1;
+      if (count < 12) return 2;
+      if (count < 20) return 3;
+      if (count < 35) return 4;
+      return 5;
+    }
 
     function getViewportSize() {
       if (window.visualViewport) {
@@ -257,14 +502,369 @@
       return items[Math.floor(Math.random() * items.length)];
     }
 
-    syncViewport();
-    window.addEventListener('resize', syncViewport);
-    window.addEventListener('orientationchange', syncViewport);
-
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', syncViewport);
-      window.visualViewport.addEventListener('scroll', syncViewport);
+    function randInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
     }
+
+    function showNotice(message, mode = 'warning', duration = 1700, blocking = false, heading = 'notice') {
+      clearTimeout(noticeTimer);
+      noticeCard.setAttribute('data-mode', mode);
+      noticeHeading.textContent = heading;
+      noticeText.textContent = message;
+      noticeOverlay.classList.add('active');
+      noticeOverlay.classList.toggle('blocking', blocking);
+
+      noticeTimer = setTimeout(() => {
+        noticeOverlay.classList.remove('active', 'blocking');
+      }, duration);
+    }
+
+    function flashCounterWord(word, duration = 650) {
+      clearTimeout(counterTimer);
+      counterEl.classList.add('word');
+      counterEl.textContent = word;
+
+      counterTimer = setTimeout(() => {
+        counterEl.classList.remove('word');
+        counterEl.textContent = String(pressCount);
+      }, duration);
+    }
+
+    function distortTitle(duration = 320) {
+      clearTimeout(titleTimer);
+      const phase = getPhase();
+      const x = (Math.random() - 0.5) * (phase * 2.2);
+      const y = (Math.random() - 0.5) * (phase * 1.2);
+      const skew = (Math.random() - 0.5) * (phase * 0.9);
+      const scale = 1 + (phase * 0.01);
+
+      titleEl.style.transform = `translate(${x}px, ${y}px) skewX(${skew}deg) scale(${scale})`;
+      titleEl.style.letterSpacing = `${-0.01 - (phase * 0.005)}em`;
+      titleEl.style.filter = phase >= 4 ? 'blur(0.2px) saturate(1.15)' : '';
+
+      titleTimer = setTimeout(() => {
+        titleEl.style.transform = '';
+        titleEl.style.letterSpacing = '';
+        titleEl.style.filter = '';
+      }, duration);
+    }
+
+    function applyInterfaceDrift() {
+      clearTimeout(driftTimer);
+      const phase = getPhase();
+
+      if (phase < 3) {
+        contentWrap.style.transform = '';
+        buttonRow.style.transform = '';
+        resetLink.style.transform = '';
+        counterWrap.style.transform = '';
+        return;
+      }
+
+      const mainX = (Math.random() - 0.5) * phase * 2.8;
+      const mainY = (Math.random() - 0.5) * phase * 1.4;
+      const skew = (Math.random() - 0.5) * phase * 0.55;
+      const btnX = (Math.random() - 0.5) * phase * 1.6;
+      const resetX = (Math.random() - 0.5) * phase * 5.5;
+      const resetY = (Math.random() - 0.5) * phase * 1.2;
+      const counterX = (Math.random() - 0.5) * phase * 1.8;
+
+      contentWrap.style.transform = `translate(${mainX}px, ${mainY}px) skewX(${skew}deg)`;
+      buttonRow.style.transform = `translateX(${btnX}px)`;
+      resetLink.style.transform = `translate(${resetX}px, ${resetY}px)`;
+      counterWrap.style.transform = `translateX(${counterX}px)`;
+
+      driftTimer = setTimeout(() => {
+        contentWrap.style.transform = '';
+        buttonRow.style.transform = '';
+        resetLink.style.transform = '';
+        counterWrap.style.transform = '';
+      }, 260 + (phase * 45));
+    }
+
+    function syncPrimaryLabel() {
+      const phase = getPhase();
+
+      if (actionLocked) return;
+
+      if (phase === 1) btn.textContent = 'do not press';
+      if (phase === 2) btn.textContent = 'still do not press';
+      if (phase === 3) btn.textContent = 'stop now';
+      if (phase === 4) btn.textContent = 'input not required';
+      if (phase === 5) btn.textContent = 'instruction ignored';
+    }
+
+    function updatePhaseClasses() {
+      const phase = getPhase();
+      document.body.classList.remove('phase-1', 'phase-2', 'phase-3', 'phase-4', 'phase-5');
+      document.body.classList.add(`phase-${phase}`);
+
+      if (phase === 1) {
+        document.documentElement.style.setProperty('--ambient-opacity', '0.72');
+        document.documentElement.style.setProperty('--vignette-opacity', '0.28');
+        btn.style.borderColor = '#dc2626';
+      } else if (phase === 2) {
+        document.documentElement.style.setProperty('--ambient-opacity', '0.82');
+        document.documentElement.style.setProperty('--vignette-opacity', '0.33');
+        btn.style.borderColor = '#ef4444';
+      } else if (phase === 3) {
+        document.documentElement.style.setProperty('--ambient-opacity', '0.92');
+        document.documentElement.style.setProperty('--vignette-opacity', '0.36');
+        btn.style.borderColor = '#ef4444';
+      } else if (phase === 4) {
+        document.documentElement.style.setProperty('--ambient-opacity', '1');
+        document.documentElement.style.setProperty('--vignette-opacity', '0.4');
+        btn.style.borderColor = '#f43f5e';
+      } else {
+        document.documentElement.style.setProperty('--ambient-opacity', '1');
+        document.documentElement.style.setProperty('--vignette-opacity', '0.46');
+        btn.style.borderColor = '#f43f5e';
+      }
+    }
+
+    function updateCounter(forceReal = true) {
+      if (forceReal) {
+        clearTimeout(counterTimer);
+        counterEl.classList.remove('word');
+        counterEl.textContent = String(pressCount);
+      }
+    }
+
+    function renderState() {
+      chaosLevel = Math.floor(pressCount / 3);
+      saveState();
+      updateCounter(true);
+      updatePhaseClasses();
+      syncPrimaryLabel();
+    }
+
+    function triggerShake() {
+      const duration = 320 + (Math.min(getPhase(), 5) * 80);
+      document.body.classList.add('shake');
+      setTimeout(() => document.body.classList.remove('shake'), duration);
+    }
+
+    function spawnParticles(count = 18) {
+      const { width, height } = getViewportSize();
+
+      for (let i = 0; i < count; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.textContent = pickRandom(particleGlyphs);
+        particle.style.left = `${Math.random() * width}px`;
+        particle.style.top = `${height * 0.58}px`;
+        particle.style.fontSize = `${1 + Math.random() * 1.3}rem`;
+        document.body.appendChild(particle);
+
+        const xDrift = (Math.random() - 0.5) * Math.min(700, width * 1.05);
+        const yDrift = height * (0.55 + Math.random() * 0.4);
+        const duration = 900 + Math.random() * 1300;
+
+        particle.animate([
+          { transform: 'translate(0, 0) rotate(0deg)', opacity: 0.95 },
+          { transform: `translate(${xDrift}px, -${yDrift}px) rotate(${Math.random() * 720}deg)`, opacity: 0 }
+        ], {
+          duration,
+          easing: 'cubic-bezier(0.42, 0, 1, 1)'
+        });
+
+        setTimeout(() => particle.remove(), duration);
+      }
+    }
+
+    function colorStrobe(duration = 900, step = 60) {
+      let hue = 0;
+      const interval = setInterval(() => {
+        hue = (hue + 40) % 360;
+        document.documentElement.style.filter = `hue-rotate(${hue}deg) saturate(1.8)`;
+      }, step);
+
+      setTimeout(() => {
+        clearInterval(interval);
+        document.documentElement.style.filter = '';
+      }, duration);
+    }
+
+    function vibratePattern(level = 1) {
+      if (!('vibrate' in navigator)) return;
+
+      if (level >= 5) {
+        navigator.vibrate([180, 70, 180, 70, 240]);
+      } else if (level >= 4) {
+        navigator.vibrate([140, 60, 140, 60, 140]);
+      } else if (level >= 3) {
+        navigator.vibrate([120, 60, 120]);
+      } else {
+        navigator.vibrate(100);
+      }
+    }
+
+    function maybeMilestoneNotice(previousCount) {
+      const milestones = [6, 12, 20, 35];
+      const crossed = milestones.find((m) => previousCount < m && pressCount >= m);
+
+      if (!crossed) return;
+
+      const mode = crossed >= 20 ? 'critical' : crossed >= 12 ? 'warning' : 'warning';
+      const heading = crossed >= 20 ? 'escalation' : 'status';
+      showNotice(milestoneMessages[crossed], mode, 2600, true, heading);
+    }
+
+    function maybeCounterCorruption() {
+      const phase = getPhase();
+
+      if (phase < 3) return;
+
+      const chance = phase === 3 ? 0.34 : phase === 4 ? 0.46 : 0.58;
+
+      if (Math.random() < chance) {
+        flashCounterWord(pickRandom(counterWords), 420 + (phase * 80));
+      }
+    }
+
+    function maybeDelayedPenalty() {
+      const phase = getPhase();
+
+      if (phase < 4 || delayedPenaltyTimer) return;
+
+      const chance = phase === 4 ? 0.24 : 0.38;
+
+      if (Math.random() >= chance) return;
+
+      const delay = randInt(650, 1450);
+      delayedPenaltyTimer = setTimeout(() => {
+        const extra = phase === 4 ? randInt(1, 3) : randInt(2, 4);
+        pressCount += extra;
+        renderState();
+        flashCounterWord(`+${extra}`, 700);
+        spawnParticles(10 + (extra * 6));
+        distortTitle(420);
+        applyInterfaceDrift();
+        vibratePattern(phase);
+        showNotice(`${pickRandom(delayedMessages)} +${extra}.`, phase === 5 ? 'critical' : 'warning', 1800, false, 'deferred');
+        delayedPenaltyTimer = null;
+      }, delay);
+    }
+
+    function maybeLockInput() {
+      const phase = getPhase();
+
+      if (phase < 4 || actionLocked) return;
+
+      const chance = phase === 4 ? 0.16 : 0.24;
+      if (Math.random() >= chance) return;
+
+      actionLocked = true;
+      btn.disabled = true;
+      btn.style.opacity = '0.78';
+      btn.textContent = 'processing';
+
+      setTimeout(() => {
+        actionLocked = false;
+        btn.disabled = false;
+        btn.style.opacity = '';
+        syncPrimaryLabel();
+      }, randInt(450, 900));
+    }
+
+    function maybeNotice() {
+      const phase = getPhase();
+      const chance = phase === 1 ? 0.18 : phase === 2 ? 0.28 : phase === 3 ? 0.35 : phase === 4 ? 0.42 : 0.5;
+
+      if (Math.random() < chance) {
+        const mode = phase >= 5 ? 'critical' : phase >= 3 ? 'warning' : 'warning';
+        const heading = phase >= 4 ? 'warning' : 'notice';
+        showNotice(pickRandom(stageMessages[phase]), mode, 1700 + (phase * 120), false, heading);
+      }
+    }
+
+    function performEscalation(incrementApplied = 1) {
+      const phase = getPhase();
+
+      updateCounter(true);
+      triggerShake();
+      distortTitle(260 + (phase * 40));
+      applyInterfaceDrift();
+      spawnParticles(Math.min(14 + (phase * 6) + (incrementApplied * 3), 52));
+      vibratePattern(phase);
+
+      if (phase >= 3 && Math.random() < 0.32) {
+        colorStrobe(phase >= 5 ? 1200 : 850 + (phase * 120), phase >= 5 ? 42 : 56);
+      }
+
+      if (phase >= 4) {
+        const tilt = (pressCount % 2 === 0 ? 1 : -1) * randInt(2, 5);
+        document.body.style.transition = 'transform 120ms ease';
+        document.body.style.transform = `rotate(${tilt}deg)`;
+        setTimeout(() => {
+          document.body.style.transition = 'transform 520ms ease';
+          document.body.style.transform = '';
+        }, 160);
+      }
+    }
+
+    function pressTheButton() {
+      if (actionLocked) {
+        showNotice('Input is temporarily unavailable due to prior misuse.', 'warning', 1300, false, 'notice');
+        return;
+      }
+
+      const previousCount = pressCount;
+      const phaseBefore = getPhase(previousCount);
+
+      let increment = 1;
+
+      if (phaseBefore >= 4 && Math.random() < 0.18) increment += 1;
+      if (phaseBefore >= 5 && Math.random() < 0.12) increment += 2;
+
+      pressCount += increment;
+      renderState();
+      performEscalation(increment);
+      maybeMilestoneNotice(previousCount);
+      maybeCounterCorruption();
+      maybeNotice();
+      maybeDelayedPenalty();
+      maybeLockInput();
+    }
+
+    function fakeReset() {
+      if (actionLocked) {
+        showNotice('A prior action is still being processed.', 'warning', 1200, false, 'notice');
+        return;
+      }
+
+      actionLocked = true;
+      resetLink.style.pointerEvents = 'none';
+      resetLink.textContent = 'reviewing';
+      btn.disabled = true;
+      btn.style.opacity = '0.8';
+
+      showNotice(resetMessages.mild, 'warning', 1200, true, 'request');
+
+      setTimeout(() => {
+        const phase = getPhase();
+        const penalty = phase >= 5 ? randInt(14, 24) : phase >= 4 ? randInt(10, 18) : randInt(6, 12);
+
+        pressCount += penalty;
+        renderState();
+        performEscalation(penalty > 1 ? 2 : 1);
+        flashCounterWord(`+${penalty}`, 900);
+        colorStrobe(phase >= 4 ? 1500 : 1100, phase >= 4 ? 44 : 58);
+        showNotice(`${resetMessages.severe} +${penalty}.`, 'critical', 2500, true, 'denied');
+
+        resetLink.textContent = 'reset';
+        resetLink.style.pointerEvents = '';
+        btn.disabled = false;
+        btn.style.opacity = '';
+        actionLocked = false;
+      }, randInt(850, 1250));
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Shift') {
+        pressTheButton();
+      }
+    });
 
     document.addEventListener('dblclick', (e) => {
       e.preventDefault();
@@ -296,154 +896,19 @@
       lastTouchEnd = now;
     }, { passive: false });
 
-    function updateCounter() {
-      counterEl.textContent = pressCount;
-      if (pressCount >= 20) {
-        counterEl.classList.add('glitch');
-        document.body.style.filter = 'invert(1) hue-rotate(180deg)';
-      }
+    syncViewport();
+    renderState();
+
+    window.addEventListener('resize', syncViewport);
+    window.addEventListener('orientationchange', syncViewport);
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', syncViewport);
+      window.visualViewport.addEventListener('scroll', syncViewport);
     }
 
-    function triggerShake() {
-      const duration = 400 + (chaosLevel * 100);
-      document.body.classList.add('shake');
-      setTimeout(() => document.body.classList.remove('shake'), duration);
-
-      if (chaosLevel > 5) {
-        document.body.style.transform = `rotate(${Math.random() * 8 - 4}deg)`;
-        setTimeout(() => {
-          document.body.style.transform = '';
-        }, 300);
-      }
-    }
-
-    function spawnParticles(count = 60) {
-      const { width, height } = getViewportSize();
-
-      for (let i = 0; i < count; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'particle';
-        particle.textContent = regretEmojis[Math.floor(Math.random() * regretEmojis.length)];
-        particle.style.left = Math.random() * width + 'px';
-        particle.style.top = (height * 0.6) + 'px';
-        particle.style.fontSize = (1.5 + Math.random() * 2) + 'rem';
-        document.body.appendChild(particle);
-
-        const xDrift = (Math.random() - 0.5) * Math.min(800, width * 1.25);
-        const duration = 1800 + Math.random() * 2200;
-
-        particle.animate([
-          { transform: 'translate(0, 0) rotate(0deg)', opacity: 1 },
-          { transform: `translate(${xDrift}px, -${height + 400}px) rotate(${Math.random() * 1440}deg)`, opacity: 0 }
-        ], {
-          duration,
-          easing: 'cubic-bezier(0.42, 0, 1, 1)'
-        });
-
-        setTimeout(() => particle.remove(), duration);
-      }
-    }
-
-    function colorStrobe() {
-      let hue = 0;
-      const interval = setInterval(() => {
-        hue = (hue + 45) % 360;
-        document.documentElement.style.filter = `hue-rotate(${hue}deg) saturate(2)`;
-      }, 60);
-
-      setTimeout(() => {
-        clearInterval(interval);
-        document.documentElement.style.filter = '';
-      }, 1400 + chaosLevel * 300);
-    }
-
-    function randomRegretAlert() {
-      alert(pickRandom(generalAlerts));
-    }
-
-    function fakeVirusWarning() {
-      if (pressCount > 12) {
-        alert(pickRandom(warningAlerts));
-      }
-    }
-
-    function vibrate() {
-      if ('vibrate' in navigator) {
-        if (chaosLevel > 8) {
-          navigator.vibrate([180, 60, 180, 60, 180]);
-        } else if (chaosLevel > 4) {
-          navigator.vibrate([140, 70, 140]);
-        } else {
-          navigator.vibrate(120);
-        }
-      }
-    }
-
-    function pressTheButton() {
-      pressCount++;
-      chaosLevel = Math.floor(pressCount / 3);
-
-      updateCounter();
-      triggerShake();
-      spawnParticles(30 + chaosLevel * 15);
-      vibrate();
-
-      if (pressCount % 3 === 0) colorStrobe();
-      if (pressCount % 4 === 0) randomRegretAlert();
-      if (pressCount % 5 === 0) fakeVirusWarning();
-
-      if (pressCount > 8) {
-        const tilt = (pressCount % 2 === 0 ? 6 : -6) + chaosLevel;
-        document.body.style.transition = 'transform 0.2s';
-        document.body.style.transform = `rotate(${tilt}deg)`;
-        setTimeout(() => {
-          document.body.style.transition = 'transform 1s';
-          document.body.style.transform = '';
-        }, 600);
-      }
-
-      if (pressCount >= 10) {
-        const btn = document.getElementById('doNotPressBtn');
-        btn.classList.add('glitch');
-        btn.style.borderColor = '#ff00ff';
-      }
-    }
-
-    function fakeReset() {
-      pressCount += Math.floor(Math.random() * 12) + 8;
-      chaosLevel += 4;
-      updateCounter();
-      triggerShake();
-      spawnParticles(120);
-      colorStrobe();
-      randomRegretAlert();
-      fakeVirusWarning();
-
-      if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
-
-      document.body.style.filter = 'invert(1) brightness(1.5)';
-      setTimeout(() => {
-        document.body.style.filter = '';
-      }, 800);
-
-      alert(pickRandom(resetAlerts));
-    }
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Shift') {
-        document.body.addEventListener('click', instantChaos, { once: true });
-      }
-    });
-
-    function instantChaos() {
-      pressCount += 15;
-      updateCounter();
-      triggerShake();
-      spawnParticles(200);
-      colorStrobe();
-      randomRegretAlert();
-      fakeVirusWarning();
-      if ('vibrate' in navigator) navigator.vibrate([300, 100, 300]);
+    if (pressCount >= 20) {
+      showNotice('Previous misuse has been restored from persistent session state.', 'warning', 1800, false, 'restored');
     }
   </script>
 </body>
