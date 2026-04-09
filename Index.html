@@ -379,17 +379,15 @@
   <canvas id="canvas"></canvas>
 
   <script>
-    const STORAGE_KEY = 'the_depressinator_press_count_v3';
-
-    let pressCount = Math.max(0, parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10) || 0);
-    let chaosLevel = Math.floor(pressCount / 3);
-    let lastTouchEnd = 0;
-    let noticeTimer = null;
-    let counterTimer = null;
-    let titleTimer = null;
-    let driftTimer = null;
-    let delayedPenaltyTimer = null;
-    let actionLocked = false;
+    let pressCount = 0;
+let chaosLevel = Math.floor(pressCount / 3);
+let lastTouchEnd = 0;
+let noticeTimer = null;
+let counterTimer = null;
+let titleTimer = null;
+let driftTimer = null;
+let delayedPenaltyTimer = null;
+let actionLocked = false;
 
     const titleEl = document.getElementById('titleText');
     const contentWrap = document.getElementById('contentWrap');
@@ -460,9 +458,7 @@
       'Further liability has been appended to the session.'
     ];
 
-    function saveState() {
-      localStorage.setItem(STORAGE_KEY, String(pressCount));
-    }
+    
 
     function getPhase(count = pressCount) {
       if (count < 6) return 1;
@@ -624,12 +620,11 @@
     }
 
     function renderState() {
-      chaosLevel = Math.floor(pressCount / 3);
-      saveState();
-      updateCounter(true);
-      updatePhaseClasses();
-      syncPrimaryLabel();
-    }
+  chaosLevel = Math.floor(pressCount / 3);
+  updateCounter(true);
+  updatePhaseClasses();
+  syncPrimaryLabel();
+}
 
     function triggerShake() {
       const duration = 320 + (Math.min(getPhase(), 5) * 80);
@@ -900,9 +895,7 @@
       window.visualViewport.addEventListener('scroll', syncViewport);
     }
 
-    if (pressCount >= 20) {
-      showNotice('Previous misuse has been restored from persistent session state.', 'warning', 1800, false, 'restored');
-    }
+    
   </script>
 </body>
 </html>
