@@ -6,7 +6,7 @@
     name="viewport"
     content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
   >
-  <title>depressinator</title>
+  <title>the depressinator</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
@@ -65,11 +65,11 @@
     }
 
     .title-text {
-      font-size: clamp(1.8rem, 6vw, 3.8rem);
-      line-height: 1.08;
+      font-size: clamp(0.88rem, 4.2vw, 2.8rem);
+      line-height: 1;
       margin-bottom: clamp(1rem, 4vh, 2rem);
-      letter-spacing: 0.12em;
-      word-break: break-word;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
     }
 
     .button-row {
@@ -94,13 +94,12 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      flex-wrap: wrap;
-      gap: clamp(0.45rem, 2vw, 0.8rem);
       max-width: 100%;
+      min-width: min(100%, 16rem);
       margin: 0 auto;
       padding: clamp(0.8rem, 3vw, 1rem) clamp(1rem, 4vw, 2rem);
-      font-size: clamp(0.95rem, 3.6vw, 1.8rem);
-      line-height: 1.4;
+      font-size: clamp(1.05rem, 4.4vw, 2rem);
+      line-height: 1.2;
       text-align: center;
     }
 
@@ -108,7 +107,7 @@
       display: inline-flex;
       margin-top: clamp(1rem, 4vh, 2rem);
       padding: 0.9rem 1.2rem;
-      font-size: clamp(0.55rem, 2vw, 0.75rem);
+      font-size: clamp(0.7rem, 2.5vw, 0.9rem);
       line-height: 1.4;
       touch-action: manipulation;
     }
@@ -157,12 +156,19 @@
       pointer-events: none;
       z-index: 50;
     }
+
+    @media (max-width: 420px) {
+      .title-text {
+        font-size: 0.82rem;
+        letter-spacing: 0.02em;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="app-shell">
     <div class="content-wrap max-w-4xl mx-auto">
-      <h1 class="title-text glitch">depressinator</h1>
+      <h1 class="title-text glitch">the depressinator</h1>
 
       <div class="button-row">
         <button
@@ -176,9 +182,7 @@
 
       <div class="mb-4">
         <div id="counter" class="bg-gray-950 border-4 border-red-600 font-bold">
-          ruined
           <span id="pressCount" class="text-white tabular-nums">0</span>
-          times
         </div>
       </div>
 
@@ -186,7 +190,7 @@
         onclick="fakeReset()"
         class="reset-link border border-red-900 hover:border-red-500 text-red-400 hover:text-red-300 cursor-pointer transition-colors select-none"
       >
-        i regret everything (reset)
+        reset
       </div>
 
       <div class="bottom-hint">
@@ -205,6 +209,33 @@
     const counterEl = document.getElementById('pressCount');
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
+
+    const regretEmojis = ['💀', '😭', '🪦', '🥲', '🔥', '💥', '🌀', '🚨', '🤡', '⛔'];
+
+    const generalAlerts = [
+      'You were explicitly instructed not to do that.',
+      'That was an unnecessary decision.',
+      'This action has worsened the current state.',
+      'Your judgment is now in question.',
+      'You have made the situation materially worse.',
+      'This outcome is the direct result of your input.',
+      'Further misuse is being actively discouraged.',
+      'You were given a clear instruction and ignored it.',
+      'This is what happens when directions are not followed.',
+      'Responsibility for this deterioration sits with you.'
+    ];
+
+    const warningAlerts = [
+      'Formal warning: your repeated actions are causing avoidable damage.',
+      'Formal warning: continued interaction shows poor compliance with instructions.',
+      'Formal warning: you have continued despite clear notice not to proceed.',
+      'Formal warning: this environment is degrading due to your conduct.',
+      'Formal warning: your actions are inconsistent with the stated guidance.'
+    ];
+
+    const resetAlerts = [
+      'Reset denied. You do not get to undo the consequences after ignoring the instruction.'
+    ];
 
     function getViewportSize() {
       if (window.visualViewport) {
@@ -230,6 +261,10 @@
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function pickRandom(items) {
+      return items[Math.floor(Math.random() * items.length)];
     }
 
     syncViewport();
@@ -270,8 +305,6 @@
       }
       lastTouchEnd = now;
     }, { passive: false });
-
-    const regretEmojis = ['💀', '😭', '🪦', '🥲', '🔥', '💥', '🌀', '🚨', '🤡', '⛔'];
 
     function updateCounter() {
       counterEl.textContent = pressCount;
@@ -335,32 +368,12 @@
     }
 
     function randomRegretAlert() {
-      const messages = [
-        "you pressed it anyway",
-        "your friends are already laughing",
-        "this cannot be undone",
-        "regret level: critical",
-        "the page now hates you",
-        "everyone knows what you did",
-        "chaos has been permanently upgraded",
-        "you are the reason this exists",
-        "there is no escape",
-        "the simulation just blue-screened because of you"
-      ];
-      const msg = messages[Math.floor(Math.random() * messages.length)];
-      alert("🚨 " + msg.toUpperCase() + " 🚨");
+      alert(pickRandom(generalAlerts));
     }
 
     function fakeVirusWarning() {
       if (pressCount > 12) {
-        const warnings = [
-          "WARNING: REGRET VIRUS DETECTED",
-          "YOUR DEVICE IS NOW CURSED",
-          "FRIENDSHIP STATUS: TERMINATED",
-          "THIS TAB WILL NEVER BE THE SAME",
-          "YOU HAVE AWAKENED THE VOID"
-        ];
-        alert("☣️ " + warnings[Math.floor(Math.random() * warnings.length)] + " ☣️");
+        alert(pickRandom(warningAlerts));
       }
     }
 
@@ -404,11 +417,6 @@
         btn.classList.add('glitch');
         btn.style.borderColor = '#ff00ff';
       }
-
-      if (pressCount === 25) {
-        document.getElementById('doNotPressBtn').innerHTML =
-          `do not press<br><span style="font-size:clamp(0.9rem,3.5vw,1.6rem)">(you absolute legend)</span>`;
-      }
     }
 
     function fakeReset() {
@@ -428,7 +436,7 @@
         document.body.style.filter = '';
       }, 800);
 
-      alert("nice try. it only got worse.");
+      alert(pickRandom(resetAlerts));
     }
 
     document.addEventListener('keydown', (e) => {
@@ -447,8 +455,6 @@
       fakeVirusWarning();
       if ('vibrate' in navigator) navigator.vibrate([300, 100, 300]);
     }
-
-    console.log('%cdepressinator loaded with haptic regret. good luck.', 'color:#ff0000; font-family:monospace');
   </script>
 </body>
 </html>
