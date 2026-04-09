@@ -114,23 +114,27 @@
     }
 
     #doNotPressBtn {
-      width: min(100%, 30rem);
-      max-width: 100%;
-      min-height: clamp(6.5rem, 24vw, 12rem);
-      padding: clamp(1.1rem, 4vw, 2.8rem) clamp(1.2rem, 5vw, 3.8rem);
-      font-size: clamp(1.5rem, 7vw, 4.25rem);
-      line-height: 1.05;
-      white-space: normal;
-      word-break: break-word;
-      touch-action: manipulation;
-      transition:
-        transform 160ms ease,
-        border-color 160ms ease,
-        background 160ms ease,
-        color 160ms ease,
-        opacity 160ms ease,
-        filter 160ms ease;
-    }
+  width: min(100%, 30rem);
+  max-width: 100%;
+  min-height: clamp(6.5rem, 24vw, 12rem);
+  padding: clamp(1.1rem, 4vw, 2.8rem) clamp(1.2rem, 5vw, 3.8rem);
+  font-size: clamp(1.5rem, 7vw, 4.25rem);
+  line-height: 1.05;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: anywhere;
+  hyphens: none;
+  text-align: center;
+  text-wrap: balance;
+  touch-action: manipulation;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    color 160ms ease,
+    opacity 160ms ease,
+    filter 160ms ease;
+}
 
     #counter {
       display: inline-flex;
@@ -407,56 +411,56 @@ let actionLocked = false;
     const counterWords = ['logged', 'fault', 'noted', 'denied', 'ignored', 'avoidable', 'recorded'];
 
     const stageMessages = {
-      1: [
-        'you were explicitly instructed not to do that',
-        'that was an unnecessary decision',
-        'this action has worsened the current state',
-        'you were given one clear instruction'
-      ],
-      2: [
-        'repeated non-compliance has now been observed',
-        'further user input is not improving conditions',
-        'this outcome is the direct result of your input',
-        'your continued participation is not assisting remediation'
-      ],
-      3: [
-        'operational state has materially deteriorated due to your conduct',
-        'instruction ignored. Liability remains with the user',
-        'this was preventable. You proceeded anyway',
-        'corrective options are narrowing because you did not stop'
-      ],
-      4: [
-        'excessive non-compliance has been logged',
-        'manual recovery is becoming less likely',
-        'the interface is no longer obligated to behave helpfully',
-        'your repeated actions are causing avoidable damage'
-      ],
-      5: [
-        'administrative note: consequences are now persistent',
-        'recovery privileges are no longer presumed',
-        'the environment is degrading in direct response to you',
-        'further misuse is being recorded for continuity'
-      ]
-    };
+  1: [
+    'you were explicitly instructed not to do that',
+    'that was an unnecessary decision',
+    'this action has worsened the current state',
+    'you were given one clear instruction'
+  ],
+  2: [
+    'repeated non-compliance has now been observed',
+    'further user input is not improving conditions',
+    'this outcome is the direct result of your input',
+    'your continued participation is not assisting remediation'
+  ],
+  3: [
+    'operational state has materially deteriorated due to your conduct',
+    'instruction ignored, liability remains with the user',
+    'this was preventable, you proceeded anyway',
+    'corrective options are narrowing because you did not stop'
+  ],
+  4: [
+    'excessive non-compliance has been logged',
+    'manual recovery is becoming less likely',
+    'the interface is no longer obligated to behave helpfully',
+    'your repeated actions are causing avoidable damage'
+  ],
+  5: [
+    'administrative note: consequences are now persistent',
+    'recovery privileges are no longer presumed',
+    'the environment is degrading in direct response to you',
+    'further misuse is being recorded for continuity'
+  ]
+};
 
     const milestoneMessages = {
-      6: 'status update: repeated misuse has begun to alter system behaviour',
-      12: 'formal warning: the interface has started adapting against the user',
-      20: 'escalation notice: adverse effects may now be delayed, cumulative, or deceptive',
-      35: 'critical notice: consequences now persist across refresh and reopening'
-    };
+  6: 'status update: repeated misuse has begun to alter system behaviour',
+  12: 'formal warning: the interface has started adapting against the user',
+  20: 'escalation notice: adverse effects may now be delayed, cumulative, or deceptive',
+  35: 'critical notice: consequences now persist across refresh and reopening'
+};
 
-    const resetMessages = {
-      mild: 'reset request submitted for review',
-      severe: 'reset denied. additional liability has been assigned'
-    };
+   const resetMessages = {
+  mild: 'reset request submitted for review',
+  severe: 'reset denied, additional liability has been assigned'
+};
 
-    const delayedMessages = [
-      'deferred impact applied',
-      'additional deterioration has been processed',
-      'a delayed penalty has now been entered',
-      'further liability has been appended to the session'
-    ];
+   const delayedMessages = [
+  'deferred impact applied',
+  'additional deterioration has been processed',
+  'a delayed penalty has now been entered',
+  'further liability has been appended to the session'
+];
 
     
 
@@ -503,17 +507,17 @@ let actionLocked = false;
     }
 
     function showNotice(message, mode = 'warning', duration = 1700, blocking = false, heading = 'notice') {
-      clearTimeout(noticeTimer);
-      noticeCard.setAttribute('data-mode', mode);
-      noticeHeading.textContent = heading;
-      noticeText.textContent = message;
-      noticeOverlay.classList.add('active');
-      noticeOverlay.classList.toggle('blocking', blocking);
+  clearTimeout(noticeTimer);
+  noticeCard.setAttribute('data-mode', mode);
+  noticeHeading.textContent = String(heading).toLowerCase();
+  noticeText.textContent = String(message).replace(/\.+$/, '').replace(/^([A-Z])/, (m) => m.toLowerCase());
+  noticeOverlay.classList.add('active');
+  noticeOverlay.classList.toggle('blocking', blocking);
 
-      noticeTimer = setTimeout(() => {
-        noticeOverlay.classList.remove('active', 'blocking');
-      }, duration);
-    }
+  noticeTimer = setTimeout(() => {
+    noticeOverlay.classList.remove('active', 'blocking');
+  }, duration);
+}
 
     function flashCounterWord(word, duration = 650) {
       clearTimeout(counterTimer);
@@ -729,7 +733,7 @@ let actionLocked = false;
         distortTitle(420);
         applyInterfaceDrift();
         vibratePattern(phase);
-        showNotice(`${pickRandom(delayedMessages)} +${extra}.`, phase === 5 ? 'critical' : 'warning', 1800, false, 'deferred');
+        showNotice(`${pickRandom(delayedMessages)} +${extra}`, phase === 5 ? 'critical' : 'warning', 1800, false, 'deferred');
         delayedPenaltyTimer = null;
       }, delay);
     }
@@ -793,7 +797,7 @@ let actionLocked = false;
 
     function pressTheButton() {
       if (actionLocked) {
-        showNotice('Input is temporarily unavailable due to prior misuse.', 'warning', 1300, false, 'notice');
+        showNotice('input is temporarily unavailable due to prior misuse', 'warning', 1300, false, 'notice');
         return;
       }
 
@@ -817,7 +821,7 @@ let actionLocked = false;
 
     function fakeReset() {
       if (actionLocked) {
-        showNotice('A prior action is still being processed.', 'warning', 1200, false, 'notice');
+        showNotice('a prior action is still being processed', 'warning', 1200, false, 'notice');
         return;
       }
 
@@ -838,7 +842,7 @@ let actionLocked = false;
         performEscalation(penalty > 1 ? 2 : 1);
         flashCounterWord(`+${penalty}`, 900);
         colorStrobe(phase >= 4 ? 1500 : 1100, phase >= 4 ? 44 : 58);
-        showNotice(`${resetMessages.severe} +${penalty}.`, 'critical', 2500, true, 'denied');
+        showNotice(`${resetMessages.severe} +${penalty}`, 'critical', 2500, true, 'denied');
 
         resetLink.textContent = 'reset';
         resetLink.style.pointerEvents = '';
