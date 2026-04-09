@@ -2,112 +2,274 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+  >
   <title>depressinator</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+    :root {
+      --app-height: 100dvh;
+    }
+
     * {
       -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
     }
+
     html {
-      -webkit-text-size-adjust: none;
-    }
-    body { 
-      font-family: 'Press Start 2P', system-ui; 
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
       touch-action: manipulation;
-      overscroll-behavior: none;
     }
+
+    body {
+      margin: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      background: #000;
+      color: #dc2626;
+      font-family: 'Press Start 2P', system-ui;
+      overscroll-behavior: none;
+      position: fixed;
+      inset: 0;
+    }
+
+    .app-shell {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: var(--app-height);
+      min-height: var(--app-height);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      padding:
+        calc(env(safe-area-inset-top) + 16px)
+        calc(env(safe-area-inset-right) + 16px)
+        calc(env(safe-area-inset-bottom) + 16px)
+        calc(env(safe-area-inset-left) + 16px);
+    }
+
+    .content-wrap {
+      width: min(100%, 68rem);
+      text-align: center;
+      position: relative;
+    }
+
+    .title-text {
+      font-size: clamp(1.8rem, 6vw, 3.8rem);
+      line-height: 1.08;
+      margin-bottom: clamp(1rem, 4vh, 2rem);
+      letter-spacing: 0.12em;
+      word-break: break-word;
+    }
+
+    .button-row {
+      display: flex;
+      justify-content: center;
+      margin-bottom: clamp(1rem, 5vh, 2.5rem);
+    }
+
+    #doNotPressBtn {
+      width: min(100%, 30rem);
+      max-width: 100%;
+      min-height: clamp(6.5rem, 24vw, 12rem);
+      padding: clamp(1.1rem, 4vw, 2.8rem) clamp(1.2rem, 5vw, 3.8rem);
+      font-size: clamp(1.5rem, 7vw, 4.25rem);
+      line-height: 1.05;
+      white-space: normal;
+      word-break: break-word;
+      touch-action: manipulation;
+    }
+
+    #counter {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: clamp(0.45rem, 2vw, 0.8rem);
+      max-width: 100%;
+      margin: 0 auto;
+      padding: clamp(0.8rem, 3vw, 1rem) clamp(1rem, 4vw, 2rem);
+      font-size: clamp(0.95rem, 3.6vw, 1.8rem);
+      line-height: 1.4;
+      text-align: center;
+    }
+
+    .reset-link {
+      display: inline-flex;
+      margin-top: clamp(1rem, 4vh, 2rem);
+      padding: 0.9rem 1.2rem;
+      font-size: clamp(0.55rem, 2vw, 0.75rem);
+      line-height: 1.4;
+      touch-action: manipulation;
+    }
+
+    .bottom-hint {
+      margin-top: clamp(1rem, 4vh, 2rem);
+      font-size: clamp(0.45rem, 1.8vw, 0.625rem);
+      line-height: 1.4;
+      color: rgb(127 29 29 / 0.5);
+      letter-spacing: 0.18em;
+      pointer-events: none;
+    }
+
     .glitch {
       animation: glitch 0.3s infinite;
     }
+
     @keyframes glitch {
       0% { text-shadow: 3px 3px #ff0000, -3px -3px #00ffff; }
       25% { text-shadow: -3px 3px #ff0000, 3px -3px #00ffff; }
       50% { text-shadow: 3px -3px #ff0000, -3px 3px #00ffff; }
       100% { text-shadow: 3px 3px #ff0000, -3px -3px #00ffff; }
     }
-    .shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+
+    .shake {
+      animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
     @keyframes shake {
       10%, 90% { transform: translate3d(-4px, 0, 0); }
       20%, 80% { transform: translate3d(4px, 0, 0); }
       30%, 50%, 70% { transform: translate3d(-8px, 0, 0); }
       40%, 60% { transform: translate3d(8px, 0, 0); }
     }
-    .particle { position: absolute; pointer-events: none; font-size: 2.5rem; z-index: 9999; }
-    .regret { animation: regretPulse 1s infinite alternate; }
 
-    /* Mobile-specific fixes */
-    @media (max-width: 640px) {
-      h1 {
-        font-size: 2.75rem;
-        line-height: 1.1;
-      }
-      .text-7xl {
-        font-size: 3.5rem;
-      }
-      .text-8xl {
-        font-size: 4rem;
-      }
-      button {
-        padding-left: 3rem;
-        padding-right: 3rem;
-        padding-top: 3rem;
-        padding-bottom: 3rem;
-      }
+    .particle {
+      position: absolute;
+      pointer-events: none;
+      font-size: 2.5rem;
+      z-index: 9999;
+    }
+
+    canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 50;
     }
   </style>
 </head>
-<body class="bg-black text-red-600 overflow-hidden flex items-center justify-center min-h-screen min-h-dvh">
-  <div class="max-w-4xl mx-auto text-center p-6 md:p-8 relative w-full">
-    <!-- TITLE -->
-    <h1 class="text-5xl md:text-6xl mb-8 glitch tracking-widest">depressinator</h1>
-    
-    <!-- THE BUTTON -->
-    <div class="flex justify-center mb-12">
-      <button onclick="pressTheButton()" 
-        id="doNotPressBtn"
-        class="px-20 py-16 text-7xl md:text-8xl font-bold border-8 border-red-600 bg-black hover:bg-red-600 hover:text-black active:scale-95 transition-all shadow-[0_0_80px_-10px] shadow-red-600 rounded-3xl touch-manipulation">
-        do not press
-      </button>
-    </div>
+<body>
+  <div class="app-shell">
+    <div class="content-wrap max-w-4xl mx-auto">
+      <h1 class="title-text glitch">depressinator</h1>
 
-    <!-- COUNTER -->
-    <div class="mb-12">
-      <div id="counter" class="inline-flex items-center gap-3 bg-gray-950 border-4 border-red-600 px-8 py-4 text-3xl font-bold mx-auto">
-        ruined 
-        <span id="pressCount" class="text-white tabular-nums">0</span> 
-        times
+      <div class="button-row">
+        <button
+          onclick="pressTheButton()"
+          id="doNotPressBtn"
+          class="font-bold border-8 border-red-600 bg-black hover:bg-red-600 hover:text-black active:scale-95 transition-all shadow-[0_0_80px_-10px] shadow-red-600 rounded-3xl"
+        >
+          do not press
+        </button>
       </div>
-    </div>
 
-    <!-- HIDDEN REGRET RESET -->
-    <div onclick="fakeReset()" 
-      class="inline-flex mx-auto px-6 py-3 text-xs border border-red-900 hover:border-red-500 text-red-400 hover:text-red-300 cursor-pointer transition-colors select-none">
-      i regret everything (reset)
-    </div>
+      <div class="mb-4">
+        <div id="counter" class="bg-gray-950 border-4 border-red-600 font-bold">
+          ruined
+          <span id="pressCount" class="text-white tabular-nums">0</span>
+          times
+        </div>
+      </div>
 
-    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 text-[10px] text-red-900/50 tracking-widest pointer-events-none">
-      the more you press the worse it gets
+      <div
+        onclick="fakeReset()"
+        class="reset-link border border-red-900 hover:border-red-500 text-red-400 hover:text-red-300 cursor-pointer transition-colors select-none"
+      >
+        i regret everything (reset)
+      </div>
+
+      <div class="bottom-hint">
+        the more you press the worse it gets
+      </div>
     </div>
   </div>
 
-  <!-- CANVAS FOR PARTICLES -->
-  <canvas id="canvas" class="fixed inset-0 pointer-events-none z-50"></canvas>
+  <canvas id="canvas"></canvas>
 
   <script>
     let pressCount = 0;
     let chaosLevel = 0;
+    let lastTouchEnd = 0;
+
     const counterEl = document.getElementById('pressCount');
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+
+    function getViewportSize() {
+      if (window.visualViewport) {
+        return {
+          width: Math.round(window.visualViewport.width),
+          height: Math.round(window.visualViewport.height)
+        };
+      }
+
+      return {
+        width: window.innerWidth,
+        height: window.innerHeight
+      };
     }
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
+
+    function syncViewport() {
+      const { width, height } = getViewportSize();
+      document.documentElement.style.setProperty('--app-height', `${height}px`);
+
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    syncViewport();
+    window.addEventListener('resize', syncViewport);
+    window.addEventListener('orientationchange', syncViewport);
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', syncViewport);
+      window.visualViewport.addEventListener('scroll', syncViewport);
+    }
+
+    document.addEventListener('dblclick', (e) => {
+      e.preventDefault();
+    }, { passive: false });
+
+    document.addEventListener('gesturestart', (e) => {
+      e.preventDefault();
+    }, { passive: false });
+
+    document.addEventListener('gesturechange', (e) => {
+      e.preventDefault();
+    }, { passive: false });
+
+    document.addEventListener('gestureend', (e) => {
+      e.preventDefault();
+    }, { passive: false });
+
+    document.addEventListener('touchmove', (e) => {
+      if (e.touches.length > 1) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    document.addEventListener('touchend', (e) => {
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, { passive: false });
 
     const regretEmojis = ['💀', '😭', '🪦', '🥲', '🔥', '💥', '🌀', '🚨', '🤡', '⛔'];
 
@@ -119,38 +281,42 @@
       }
     }
 
-    function triggerShake(intensity = 1) {
+    function triggerShake() {
       const duration = 400 + (chaosLevel * 100);
       document.body.classList.add('shake');
       setTimeout(() => document.body.classList.remove('shake'), duration);
-      
+
       if (chaosLevel > 5) {
         document.body.style.transform = `rotate(${Math.random() * 8 - 4}deg)`;
-        setTimeout(() => { document.body.style.transform = ''; }, 300);
+        setTimeout(() => {
+          document.body.style.transform = '';
+        }, 300);
       }
     }
 
     function spawnParticles(count = 60) {
+      const { width, height } = getViewportSize();
+
       for (let i = 0; i < count; i++) {
         const particle = document.createElement('div');
         particle.className = 'particle';
         particle.textContent = regretEmojis[Math.floor(Math.random() * regretEmojis.length)];
-        particle.style.left = Math.random() * window.innerWidth + 'px';
-        particle.style.top = (window.innerHeight * 0.6) + 'px';
+        particle.style.left = Math.random() * width + 'px';
+        particle.style.top = (height * 0.6) + 'px';
         particle.style.fontSize = (1.5 + Math.random() * 2) + 'rem';
         document.body.appendChild(particle);
-        
-        const xDrift = (Math.random() - 0.5) * 800;
+
+        const xDrift = (Math.random() - 0.5) * Math.min(800, width * 1.25);
         const duration = 1800 + Math.random() * 2200;
-        
+
         particle.animate([
           { transform: 'translate(0, 0) rotate(0deg)', opacity: 1 },
-          { transform: `translate(${xDrift}px, -${window.innerHeight + 400}px) rotate(${Math.random() * 1440}deg)`, opacity: 0 }
+          { transform: `translate(${xDrift}px, -${height + 400}px) rotate(${Math.random() * 1440}deg)`, opacity: 0 }
         ], {
-          duration: duration,
+          duration,
           easing: 'cubic-bezier(0.42, 0, 1, 1)'
         });
-        
+
         setTimeout(() => particle.remove(), duration);
       }
     }
@@ -161,7 +327,7 @@
         hue = (hue + 45) % 360;
         document.documentElement.style.filter = `hue-rotate(${hue}deg) saturate(2)`;
       }, 60);
-      
+
       setTimeout(() => {
         clearInterval(interval);
         document.documentElement.style.filter = '';
@@ -198,18 +364,31 @@
       }
     }
 
+    function vibrate() {
+      if ('vibrate' in navigator) {
+        if (chaosLevel > 8) {
+          navigator.vibrate([180, 60, 180, 60, 180]);
+        } else if (chaosLevel > 4) {
+          navigator.vibrate([140, 70, 140]);
+        } else {
+          navigator.vibrate(120);
+        }
+      }
+    }
+
     function pressTheButton() {
       pressCount++;
       chaosLevel = Math.floor(pressCount / 3);
-      
+
       updateCounter();
-      triggerShake(chaosLevel);
+      triggerShake();
       spawnParticles(30 + chaosLevel * 15);
-      
+      vibrate();
+
       if (pressCount % 3 === 0) colorStrobe();
       if (pressCount % 4 === 0) randomRegretAlert();
       if (pressCount % 5 === 0) fakeVirusWarning();
-      
+
       if (pressCount > 8) {
         const tilt = (pressCount % 2 === 0 ? 6 : -6) + chaosLevel;
         document.body.style.transition = 'transform 0.2s';
@@ -219,15 +398,16 @@
           document.body.style.transform = '';
         }, 600);
       }
-      
+
       if (pressCount >= 10) {
         const btn = document.getElementById('doNotPressBtn');
         btn.classList.add('glitch');
         btn.style.borderColor = '#ff00ff';
       }
-      
+
       if (pressCount === 25) {
-        document.getElementById('doNotPressBtn').innerHTML = `do not press<br><span class="text-3xl">(you absolute legend)</span>`;
+        document.getElementById('doNotPressBtn').innerHTML =
+          `do not press<br><span style="font-size:clamp(0.9rem,3.5vw,1.6rem)">(you absolute legend)</span>`;
       }
     }
 
@@ -235,17 +415,19 @@
       pressCount += Math.floor(Math.random() * 12) + 8;
       chaosLevel += 4;
       updateCounter();
-      triggerShake(3);
+      triggerShake();
       spawnParticles(120);
       colorStrobe();
       randomRegretAlert();
       fakeVirusWarning();
-      
+
+      if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
+
       document.body.style.filter = 'invert(1) brightness(1.5)';
       setTimeout(() => {
         document.body.style.filter = '';
       }, 800);
-      
+
       alert("nice try. it only got worse.");
     }
 
@@ -254,18 +436,19 @@
         document.body.addEventListener('click', instantChaos, { once: true });
       }
     });
-    
+
     function instantChaos() {
       pressCount += 15;
       updateCounter();
-      triggerShake(5);
+      triggerShake();
       spawnParticles(200);
       colorStrobe();
       randomRegretAlert();
       fakeVirusWarning();
+      if ('vibrate' in navigator) navigator.vibrate([300, 100, 300]);
     }
 
-    console.log('%cdepressinator loaded. good luck on mobile.', 'color:#ff0000; font-family:monospace');
+    console.log('%cdepressinator loaded with haptic regret. good luck.', 'color:#ff0000; font-family:monospace');
   </script>
 </body>
 </html>
