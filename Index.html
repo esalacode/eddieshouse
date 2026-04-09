@@ -2,12 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>do not press</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>depressinator</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-    body { font-family: 'Press Start 2P', system-ui; }
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+    html {
+      -webkit-text-size-adjust: none;
+    }
+    body { 
+      font-family: 'Press Start 2P', system-ui; 
+      touch-action: manipulation;
+      overscroll-behavior: none;
+    }
     .glitch {
       animation: glitch 0.3s infinite;
     }
@@ -25,26 +35,32 @@
       40%, 60% { transform: translate3d(8px, 0, 0); }
     }
     .particle { position: absolute; pointer-events: none; font-size: 2.5rem; z-index: 9999; }
-    .regret { animation: regretPulse 1s infinite alternate; }
+
+    @media (max-width: 640px) {
+      h1 { font-size: 2.75rem; line-height: 1.1; }
+      .text-7xl { font-size: 3.5rem; }
+      .text-8xl { font-size: 4rem; }
+      button { padding-left: 3rem; padding-right: 3rem; padding-top: 3rem; padding-bottom: 3rem; }
+    }
   </style>
 </head>
-<body class="bg-black text-red-600 overflow-hidden flex items-center justify-center min-h-screen">
-  <div class="max-w-4xl mx-auto text-center p-8 relative">
+<body class="bg-black text-red-600 overflow-hidden flex items-center justify-center min-h-screen min-h-dvh">
+  <div class="max-w-4xl mx-auto text-center p-6 md:p-8 relative w-full">
     <!-- TITLE -->
-    <h1 class="text-5xl md:text-6xl mb-8 glitch tracking-widest">infinite regret simulator</h1>
+    <h1 class="text-5xl md:text-6xl mb-8 glitch tracking-widest">depressinator</h1>
     
     <!-- THE BUTTON -->
     <div class="flex justify-center mb-12">
       <button onclick="pressTheButton()" 
         id="doNotPressBtn"
-        class="px-20 py-16 text-7xl md:text-8xl font-bold border-8 border-red-600 bg-black hover:bg-red-600 hover:text-black active:scale-95 transition-all shadow-[0_0_80px_-10px] shadow-red-600 rounded-3xl">
+        class="px-20 py-16 text-7xl md:text-8xl font-bold border-8 border-red-600 bg-black hover:bg-red-600 hover:text-black active:scale-95 transition-all shadow-[0_0_80px_-10px] shadow-red-600 rounded-3xl touch-manipulation">
         do not press
       </button>
     </div>
 
     <!-- COUNTER -->
     <div class="mb-12">
-      <div id="counter" class="inline-flex items-center gap-3 bg-gray-950 border-4 border-red-600 px-8 py-4 text-3xl font-bold">
+      <div id="counter" class="inline-flex items-center gap-3 bg-gray-950 border-4 border-red-600 px-8 py-4 text-3xl font-bold mx-auto">
         ruined 
         <span id="pressCount" class="text-white tabular-nums">0</span> 
         times
@@ -53,11 +69,11 @@
 
     <!-- HIDDEN REGRET RESET -->
     <div onclick="fakeReset()" 
-      class="inline-flex mx-auto px-6 py-3 text-xs border border-red-900 hover:border-red-500 text-red-400 hover:text-red-300 cursor-pointer transition-colors">
+      class="inline-flex mx-auto px-6 py-3 text-xs border border-red-900 hover:border-red-500 text-red-400 hover:text-red-300 cursor-pointer transition-colors select-none">
       i regret everything (reset)
     </div>
 
-    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 text-[10px] text-red-900/50 tracking-widest">
+    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 text-[10px] text-red-900/50 tracking-widest pointer-events-none">
       the more you press the worse it gets
     </div>
   </div>
@@ -72,12 +88,12 @@
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    window.addEventListener('resize', () => {
+    function resizeCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-    });
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
 
     const regretEmojis = ['💀', '😭', '🪦', '🥲', '🔥', '💥', '🌀', '🚨', '🤡', '⛔'];
 
@@ -94,7 +110,6 @@
       document.body.classList.add('shake');
       setTimeout(() => document.body.classList.remove('shake'), duration);
       
-      // stronger shake the more you press
       if (chaosLevel > 5) {
         document.body.style.transform = `rotate(${Math.random() * 8 - 4}deg)`;
         setTimeout(() => { document.body.style.transform = ''; }, 300);
@@ -169,6 +184,19 @@
       }
     }
 
+    function vibrate() {
+      if ('vibrate' in navigator) {
+        // escalate the buzz the more you press
+        if (chaosLevel > 8) {
+          navigator.vibrate([180, 60, 180, 60, 180]); // full panic mode
+        } else if (chaosLevel > 4) {
+          navigator.vibrate([140, 70, 140]);
+        } else {
+          navigator.vibrate(120); // satisfying single buzz
+        }
+      }
+    }
+
     function pressTheButton() {
       pressCount++;
       chaosLevel = Math.floor(pressCount / 3);
@@ -176,13 +204,12 @@
       updateCounter();
       triggerShake(chaosLevel);
       spawnParticles(30 + chaosLevel * 15);
+      vibrate();                    // ← haptic chaos added here
       
-      // escalating madness
       if (pressCount % 3 === 0) colorStrobe();
       if (pressCount % 4 === 0) randomRegretAlert();
       if (pressCount % 5 === 0) fakeVirusWarning();
       
-      // page tilt gets worse
       if (pressCount > 8) {
         const tilt = (pressCount % 2 === 0 ? 6 : -6) + chaosLevel;
         document.body.style.transition = 'transform 0.2s';
@@ -193,21 +220,18 @@
         }, 600);
       }
       
-      // button starts glitching after 10 presses
       if (pressCount >= 10) {
         const btn = document.getElementById('doNotPressBtn');
         btn.classList.add('glitch');
         btn.style.borderColor = '#ff00ff';
       }
       
-      // after 25 presses the button text changes forever
       if (pressCount === 25) {
         document.getElementById('doNotPressBtn').innerHTML = `do not press<br><span class="text-3xl">(you absolute legend)</span>`;
       }
     }
 
     function fakeReset() {
-      // lies to you and makes it worse
       pressCount += Math.floor(Math.random() * 12) + 8;
       chaosLevel += 4;
       updateCounter();
@@ -216,17 +240,14 @@
       colorStrobe();
       randomRegretAlert();
       fakeVirusWarning();
+      if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]); // extra evil buzz
       
-      // extra evil touch
       document.body.style.filter = 'invert(1) brightness(1.5)';
-      setTimeout(() => {
-        document.body.style.filter = '';
-      }, 800);
+      setTimeout(() => { document.body.style.filter = ''; }, 800);
       
       alert("nice try. it only got worse.");
     }
 
-    // easter egg: hold shift and click anywhere for instant chaos
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Shift') {
         document.body.addEventListener('click', instantChaos, { once: true });
@@ -241,9 +262,10 @@
       colorStrobe();
       randomRegretAlert();
       fakeVirusWarning();
+      if ('vibrate' in navigator) navigator.vibrate([300, 100, 300]);
     }
 
-    console.log('%cdo not press loaded. good luck.', 'color:#ff0000; font-family:monospace');
+    console.log('%cdepressinator loaded with haptic regret. good luck.', 'color:#ff0000; font-family:monospace');
   </script>
 </body>
 </html>
