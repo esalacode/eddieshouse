@@ -35,12 +35,26 @@
       40%, 60% { transform: translate3d(8px, 0, 0); }
     }
     .particle { position: absolute; pointer-events: none; font-size: 2.5rem; z-index: 9999; }
+    .regret { animation: regretPulse 1s infinite alternate; }
 
+    /* Mobile-specific fixes */
     @media (max-width: 640px) {
-      h1 { font-size: 2.75rem; line-height: 1.1; }
-      .text-7xl { font-size: 3.5rem; }
-      .text-8xl { font-size: 4rem; }
-      button { padding-left: 3rem; padding-right: 3rem; padding-top: 3rem; padding-bottom: 3rem; }
+      h1 {
+        font-size: 2.75rem;
+        line-height: 1.1;
+      }
+      .text-7xl {
+        font-size: 3.5rem;
+      }
+      .text-8xl {
+        font-size: 4rem;
+      }
+      button {
+        padding-left: 3rem;
+        padding-right: 3rem;
+        padding-top: 3rem;
+        padding-bottom: 3rem;
+      }
     }
   </style>
 </head>
@@ -184,19 +198,6 @@
       }
     }
 
-    function vibrate() {
-      if ('vibrate' in navigator) {
-        // escalate the buzz the more you press
-        if (chaosLevel > 8) {
-          navigator.vibrate([180, 60, 180, 60, 180]); // full panic mode
-        } else if (chaosLevel > 4) {
-          navigator.vibrate([140, 70, 140]);
-        } else {
-          navigator.vibrate(120); // satisfying single buzz
-        }
-      }
-    }
-
     function pressTheButton() {
       pressCount++;
       chaosLevel = Math.floor(pressCount / 3);
@@ -204,7 +205,6 @@
       updateCounter();
       triggerShake(chaosLevel);
       spawnParticles(30 + chaosLevel * 15);
-      vibrate();                    // ← haptic chaos added here
       
       if (pressCount % 3 === 0) colorStrobe();
       if (pressCount % 4 === 0) randomRegretAlert();
@@ -240,10 +240,11 @@
       colorStrobe();
       randomRegretAlert();
       fakeVirusWarning();
-      if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]); // extra evil buzz
       
       document.body.style.filter = 'invert(1) brightness(1.5)';
-      setTimeout(() => { document.body.style.filter = ''; }, 800);
+      setTimeout(() => {
+        document.body.style.filter = '';
+      }, 800);
       
       alert("nice try. it only got worse.");
     }
@@ -262,10 +263,9 @@
       colorStrobe();
       randomRegretAlert();
       fakeVirusWarning();
-      if ('vibrate' in navigator) navigator.vibrate([300, 100, 300]);
     }
 
-    console.log('%cdepressinator loaded with haptic regret. good luck.', 'color:#ff0000; font-family:monospace');
+    console.log('%cdepressinator loaded. good luck on mobile.', 'color:#ff0000; font-family:monospace');
   </script>
 </body>
 </html>
