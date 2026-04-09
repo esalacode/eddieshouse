@@ -583,16 +583,9 @@
     }
 
     function syncPrimaryLabel() {
-      const phase = getPhase();
-
-      if (actionLocked) return;
-
-      if (phase === 1) btn.textContent = 'do not press';
-      if (phase === 2) btn.textContent = 'still do not press';
-      if (phase === 3) btn.textContent = 'stop now';
-      if (phase === 4) btn.textContent = 'input not required';
-      if (phase === 5) btn.textContent = 'instruction ignored';
-    }
+  if (actionLocked) return;
+  btn.textContent = 'do not press';
+}
 
     function updatePhaseClasses() {
       const phase = getPhase();
