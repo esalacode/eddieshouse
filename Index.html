@@ -692,15 +692,16 @@ let actionLocked = false;
     }
 
     function maybeMilestoneNotice(previousCount) {
-      const milestones = [6, 12, 20, 35];
-      const crossed = milestones.find((m) => previousCount < m && pressCount >= m);
+  const milestones = [6, 12, 20, 35];
+  const currentCount = Math.abs(pressCount);
+  const crossed = milestones.find((m) => previousCount < m && currentCount >= m);
 
-      if (!crossed) return;
+  if (!crossed) return;
 
-      const mode = crossed >= 20 ? 'critical' : crossed >= 12 ? 'warning' : 'warning';
-      const heading = crossed >= 20 ? 'escalation' : 'status';
-      showNotice(milestoneMessages[crossed], mode, 2600, true, heading);
-    }
+  const mode = crossed >= 20 ? 'critical' : 'warning';
+  const heading = crossed >= 20 ? 'escalation' : 'status';
+  showNotice(milestoneMessages[crossed], mode, 2600, true, heading);
+}
 
     function maybeCounterCorruption() {
       const phase = getPhase();
