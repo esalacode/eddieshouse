@@ -383,7 +383,7 @@
   <canvas id="canvas"></canvas>
 
   <script>
-    let pressCount = 0;
+   let pressCount = 0;
 let chaosLevel = Math.floor(pressCount / 3);
 let lastTouchEnd = 0;
 let noticeTimer = null;
@@ -464,13 +464,13 @@ let actionLocked = false;
 
     
 
-    function getPhase(count = pressCount) {
-      if (count < 6) return 1;
-      if (count < 12) return 2;
-      if (count < 20) return 3;
-      if (count < 35) return 4;
-      return 5;
-    }
+    function getPhase(count = Math.abs(pressCount)) {
+  if (count < 6) return 1;
+  if (count < 12) return 2;
+  if (count < 20) return 3;
+  if (count < 35) return 4;
+  return 5;
+}
 
     function getViewportSize() {
       if (window.visualViewport) {
@@ -616,15 +616,15 @@ let actionLocked = false;
     }
 
     function updateCounter(forceReal = true) {
-      if (forceReal) {
-        clearTimeout(counterTimer);
-        counterEl.classList.remove('word');
-        counterEl.textContent = String(pressCount);
-      }
-    }
+  if (forceReal) {
+    clearTimeout(counterTimer);
+    counterEl.classList.remove('word');
+    counterEl.textContent = String(pressCount);
+  }
+}
 
-    function renderState() {
-  chaosLevel = Math.floor(pressCount / 3);
+   function renderState() {
+  chaosLevel = Math.floor(Math.abs(pressCount) / 3);
   updateCounter(true);
   updatePhaseClasses();
   syncPrimaryLabel();
@@ -715,28 +715,28 @@ let actionLocked = false;
     }
 
     function maybeDelayedPenalty() {
-      const phase = getPhase();
+  const phase = getPhase();
 
-      if (phase < 4 || delayedPenaltyTimer) return;
+  if (phase < 4 || delayedPenaltyTimer) return;
 
-      const chance = phase === 4 ? 0.24 : 0.38;
+  const chance = phase === 4 ? 0.24 : 0.38;
 
-      if (Math.random() >= chance) return;
+  if (Math.random() >= chance) return;
 
-      const delay = randInt(650, 1450);
-      delayedPenaltyTimer = setTimeout(() => {
-        const extra = phase === 4 ? randInt(1, 3) : randInt(2, 4);
-        pressCount += extra;
-        renderState();
-        flashCounterWord(`+${extra}`, 700);
-        spawnParticles(10 + (extra * 6));
-        distortTitle(420);
-        applyInterfaceDrift();
-        vibratePattern(phase);
-        showNotice(`${pickRandom(delayedMessages)} +${extra}`, phase === 5 ? 'critical' : 'warning', 1800, false, 'deferred');
-        delayedPenaltyTimer = null;
-      }, delay);
-    }
+  const delay = randInt(650, 1450);
+  delayedPenaltyTimer = setTimeout(() => {
+    const extra = phase === 4 ? randInt(1, 3) : randInt(2, 4);
+    pressCount -= extra;
+    renderState();
+    flashCounterWord(`-${extra}`, 700);
+    spawnParticles(10 + (extra * 6));
+    distortTitle(420);
+    applyInterfaceDrift();
+    vibratePattern(phase);
+    showNotice(`${pickRandom(delayedMessages)} -${extra}`, phase === 5 ? 'critical' : 'warning', 1800, false, 'deferred');
+    delayedPenaltyTimer = null;
+  }, delay);
+}
 
     function maybeLockInput() {
       const phase = getPhase();
@@ -796,61 +796,61 @@ let actionLocked = false;
     }
 
     function pressTheButton() {
-      if (actionLocked) {
-        showNotice('input is temporarily unavailable due to prior misuse', 'warning', 1300, false, 'notice');
-        return;
-      }
+  if (actionLocked) {
+    showNotice('input is temporarily unavailable due to prior misuse', 'warning', 1300, false, 'notice');
+    return;
+  }
 
-      const previousCount = pressCount;
-      const phaseBefore = getPhase(previousCount);
+  const previousCount = Math.abs(pressCount);
+  const phaseBefore = getPhase(previousCount);
 
-      let increment = 1;
+  let penalty = 1;
 
-      if (phaseBefore >= 4 && Math.random() < 0.18) increment += 1;
-      if (phaseBefore >= 5 && Math.random() < 0.12) increment += 2;
+  if (phaseBefore >= 4 && Math.random() < 0.18) penalty += 1;
+  if (phaseBefore >= 5 && Math.random() < 0.12) penalty += 2;
 
-      pressCount += increment;
-      renderState();
-      performEscalation(increment);
-      maybeMilestoneNotice(previousCount);
-      maybeCounterCorruption();
-      maybeNotice();
-      maybeDelayedPenalty();
-      maybeLockInput();
-    }
+  pressCount -= penalty;
+  renderState();
+  performEscalation(penalty);
+  maybeMilestoneNotice(previousCount);
+  maybeCounterCorruption();
+  maybeNotice();
+  maybeDelayedPenalty();
+  maybeLockInput();
+}
 
     function fakeReset() {
-      if (actionLocked) {
-        showNotice('a prior action is still being processed', 'warning', 1200, false, 'notice');
-        return;
-      }
+  if (actionLocked) {
+    showNotice('a prior action is still being processed', 'warning', 1200, false, 'notice');
+    return;
+  }
 
-      actionLocked = true;
-      resetLink.style.pointerEvents = 'none';
-      resetLink.textContent = 'reviewing';
-      btn.disabled = true;
-      btn.style.opacity = '0.8';
+  actionLocked = true;
+  resetLink.style.pointerEvents = 'none';
+  resetLink.textContent = 'reviewing';
+  btn.disabled = true;
+  btn.style.opacity = '0.8';
 
-      showNotice(resetMessages.mild, 'warning', 1200, true, 'request');
+  showNotice(resetMessages.mild, 'warning', 1200, true, 'request');
 
-      setTimeout(() => {
-        const phase = getPhase();
-        const penalty = phase >= 5 ? randInt(14, 24) : phase >= 4 ? randInt(10, 18) : randInt(6, 12);
+  setTimeout(() => {
+    const phase = getPhase();
+    const penalty = phase >= 5 ? randInt(14, 24) : phase >= 4 ? randInt(10, 18) : randInt(6, 12);
 
-        pressCount += penalty;
-        renderState();
-        performEscalation(penalty > 1 ? 2 : 1);
-        flashCounterWord(`+${penalty}`, 900);
-        colorStrobe(phase >= 4 ? 1500 : 1100, phase >= 4 ? 44 : 58);
-        showNotice(`${resetMessages.severe} +${penalty}`, 'critical', 2500, true, 'denied');
+    pressCount -= penalty;
+    renderState();
+    performEscalation(penalty > 1 ? 2 : 1);
+    flashCounterWord(`-${penalty}`, 900);
+    colorStrobe(phase >= 4 ? 1500 : 1100, phase >= 4 ? 44 : 58);
+    showNotice(`${resetMessages.severe} -${penalty}`, 'critical', 2500, true, 'denied');
 
-        resetLink.textContent = 'reset';
-        resetLink.style.pointerEvents = '';
-        btn.disabled = false;
-        btn.style.opacity = '';
-        actionLocked = false;
-      }, randInt(850, 1250));
-    }
+    resetLink.textContent = 'reset';
+    resetLink.style.pointerEvents = '';
+    btn.disabled = false;
+    btn.style.opacity = '';
+    actionLocked = false;
+  }, randInt(850, 1250));
+}
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Shift') {
